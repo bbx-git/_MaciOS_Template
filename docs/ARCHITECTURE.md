@@ -15,6 +15,7 @@
 ├── Fixtures/               sample media for tests (local/ is gitignored)
 ├── docs/
 │   ├── ARCHITECTURE.md
+│   ├── WORKFLOW.md         the user's guide (Claude skips it)
 │   ├── decisions/          NNNN-short-title.md
 │   └── plans/              active plans only
 ├── tmp/                    scratch and logs (gitignored)

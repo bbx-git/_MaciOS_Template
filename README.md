@@ -15,3 +15,4 @@ Open `App/<App>.xcodeproj` and run the `<App>` scheme. Command-line build and de
 ## More
 - Project layout and module rules: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Current status and next steps: [SESSION_STATE.md](SESSION_STATE.md)
+- How to work with Claude Code here: [docs/WORKFLOW.md](docs/WORKFLOW.md)

@@ -6,6 +6,7 @@ Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xco
 1. Current state (loaded automatically): @SESSION_STATE.md
 2. Run `git status -s && git log --oneline -5`. Treat the state as claims, not facts: before the first code change, run the tests so you know which failures were already there.
 3. Before adding or moving code, read `docs/ARCHITECTURE.md` (layout, packages, dependency rules).
+4. `docs/WORKFLOW.md` is the user's own guide: don't read it unless asked.
 
 ## Everything stays in this repo
 - Plans: `docs/plans/<topic>.md`, never `~/.claude/plans`. Sections: **Goal** (2–3 sentences, what the user gets), **Steps** (checkboxes, one commit each), **Done when** (which tests exist, what to check by hand). Show the user the plan before writing code. Tick steps as they land; when scope changes, add a dated line saying why. When done, move any lasting "why" to `docs/decisions/`, then delete the plan.
