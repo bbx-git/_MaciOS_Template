@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xcode. Minimum OS versions are in `README.md`.
+Act as a senior macOS engineer. Use the latest stable Swift and SwiftUI. The app is a SwiftPM package built by script; there is no Xcode project. Minimum OS versions are in `README.md`.
 
 ## Session start
 1. Current state (loaded automatically): @SESSION_STATE.md
@@ -40,15 +40,13 @@ Always Release, tests included. Build output lives in `.build/` (gitignored), ne
 
 ```sh
 mkdir -p tmp
-# Unit tests, per package (-enable-testing keeps @testable import working in Release)
-swift test -q -c release -Xswiftc -enable-testing --package-path Packages/<Package> > tmp/test.log 2>&1; echo "exit $?"; tail -20 tmp/test.log
-# Build, plus deploy to ~/Applications on macOS, then double-click to test
-Scripts/build.sh          # macOS (default)
-Scripts/build.sh ios      # iOS Simulator build, nothing to deploy
+# Unit tests: the root package and each package under Packages/ (-enable-testing keeps @testable import working in Release)
+swift test -q -c release -Xswiftc -enable-testing --package-path <.|Packages/Package> > tmp/test.log 2>&1; echo "exit $?"; tail -20 tmp/test.log
+# Build, wrap into a .app, install to ~/Applications, then double-click to test
+Scripts/build.sh
 ```
-- `Scripts/build.sh` is app-agnostic: it takes the app name from the single `App/*.xcodeproj` (scheme defaults to the same name; override with `SCHEME=...`). Errors are printed; the full log is `tmp/build.log`. Keep it generic; never hardcode an app name in it.
-- iOS-only packages: `xcodebuild test -configuration Release ENABLE_TESTABILITY=YES` with an iOS Simulator destination.
-- No `xcodebuild` (Linux/cloud session): skip build and deploy, and say so.
+- `Scripts/build.sh` is app-agnostic: it takes the app name from `CFBundleExecutable` in `App/Resources/Info.plist`, which must match the executable target in `Package.swift`. Errors are printed; the full log is `tmp/build.log`. Keep it generic; never hardcode an app name in it.
+- No macOS toolchain (Linux/cloud session): skip build and deploy, and say so.
 
 ## Wrap-up: when the user says "git commit push main" or ends the session
 1. If code changed since the last build: test, build, deploy. Fix obvious errors or report them.

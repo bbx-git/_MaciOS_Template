@@ -3,17 +3,17 @@
 ## Layout
 ```text
 .
+├── Package.swift           root package: the executable target <App> (path App/<App>)
 ├── App/
-│   ├── <App>.xcodeproj
-│   └── <App>/              @main, dependency wiring, assets, entitlements
+│   ├── Resources/Info.plist  bundle metadata; CFBundleExecutable = <App>
+│   └── <App>/              @main, dependency wiring
 │       └── Incubator/      experimental code (see below)
-├── Extensions/             one folder per extension target (widget, share, …)
 ├── Packages/
 │   ├── Core/               low-level building blocks: utilities, storage, networking
 │   ├── Domain/             models and business logic
 │   └── Features/           SwiftUI feature modules + DesignSystem
 ├── Fixtures/               sample media for tests (local/ is gitignored)
-├── Scripts/                build.sh: app-agnostic Release build + deploy
+├── Scripts/                build.sh: app-agnostic Release build, .app packaging, install
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── WORKFLOW.md         the user's guide (Claude skips it)
@@ -26,13 +26,13 @@
 ```
 
 ## Dependency rules
-- Imports only point down: App/Extensions → Features → Domain → Core. Skipping a layer downward is fine; importing upward never is.
+- Imports only point down: App → Features → Domain → Core. Skipping a layer downward is fine; importing upward never is.
 - Feature targets never import each other. Shared views go in the `DesignSystem` target; shared logic moves down to Domain.
 - Domain and Core don't import SwiftUI, AppKit or UIKit.
 - No source file belongs to more than one target. Code needed by two targets lives in a package.
 
 ## Thin targets
-App and extension targets only start the app, wire dependencies and hold assets and entitlements. Everything else comes from packages.
+The app target only starts the app and wires dependencies. Everything else comes from packages.
 
 ## Incubator
 New experimental features or tiny helpers may start in `App/<App>/Incubator/`. Move them into a package as soon as they stabilize or another target needs them.

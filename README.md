@@ -6,18 +6,14 @@ One-line description of what the app does and who it's for.
 - 
 
 ## Requirements
-- macOS `<min>` / iOS `<min>` (set per app)
-- Latest stable Xcode and Swift
+- macOS `<min>` (set per app)
+- Latest stable Swift toolchain (Xcode or Command Line Tools)
 
-## Getting started
-Open `App/<App>.xcodeproj` and run the `<App>` scheme.
-
-## Build from the command line
+## Build and run
 ```sh
-Scripts/build.sh        # Release build, installed to ~/Applications (macOS)
-Scripts/build.sh ios    # Release build for the iOS Simulator
+Scripts/build.sh
 ```
-The script reads the app name from `App/*.xcodeproj`, so it needs no edits per app. Output goes to `.build/`, the log to `tmp/build.log`. Unit tests run per package: `swift test -c release -Xswiftc -enable-testing --package-path Packages/<Package>`.
+Builds the Release binary with SwiftPM, wraps it in a `.app`, signs it ad hoc and installs it to `~/Applications/`. The app name comes from `App/Resources/Info.plist`, so the script needs no edits per app. The log is in `tmp/build.log`. Unit tests: `swift test -c release -Xswiftc -enable-testing --package-path <.|Packages/Package>`.
 
 ## More
 - Project layout and module rules: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)

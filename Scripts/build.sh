@@ -1,52 +1,50 @@
 #!/bin/sh
-# Builds the app in Release; on macOS also installs it to ~/Applications.
-# Works for any app: the name comes from the single App/*.xcodeproj.
-# Usage: Scripts/build.sh [macos|ios]   (default: macos)
-# Optional env: SCHEME (default: the project name)
+# Builds the SwiftPM app in Release, wraps it in a .app and installs it to ~/Applications.
+# Works for any app: the name comes from CFBundleExecutable in App/Resources/Info.plist,
+# which must match the executable target in Package.swift.
+# Usage: Scripts/build.sh
 set -eu
 
 ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT_DIR"
 
-PLATFORM=${1:-macos}
-
-set -- App/*.xcodeproj
-if [ $# -ne 1 ] || [ ! -d "$1" ]; then
-    echo "error: expected exactly one App/<App>.xcodeproj" >&2
+INFO_PLIST="$ROOT_DIR/App/Resources/Info.plist"
+if [ ! -f "$INFO_PLIST" ]; then
+    echo "error: missing $INFO_PLIST" >&2
     exit 1
 fi
-PROJECT=$1
-APP_NAME=$(basename "$PROJECT" .xcodeproj)
-SCHEME=${SCHEME:-$APP_NAME}
+APP_NAME=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$INFO_PLIST")
 
-case "$PLATFORM" in
-    macos) DESTINATION='generic/platform=macOS' ;;
-    ios)   DESTINATION='generic/platform=iOS Simulator' ;;
-    *) echo "error: platform must be macos or ios" >&2; exit 1 ;;
-esac
+BUILD_DIR="$ROOT_DIR/.build/output"
+APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
+INSTALL_DIR="$HOME/Applications"
+INSTALLED_APP="$INSTALL_DIR/$APP_NAME.app"
 
 mkdir -p tmp
-if ! xcodebuild \
-    -project "$PROJECT" \
-    -scheme "$SCHEME" \
-    -configuration Release \
-    -destination "$DESTINATION" \
-    -derivedDataPath "$ROOT_DIR/.build/DerivedData" \
-    SYMROOT="$ROOT_DIR/.build/output" \
-    -quiet > tmp/build.log 2>&1; then
+if ! swift build -c release --product "$APP_NAME" > tmp/build.log 2>&1; then
     grep -E "error:" tmp/build.log | sort -u | head -40
     echo "Build failed, see tmp/build.log" >&2
     exit 1
 fi
 grep -E "warning:" tmp/build.log | sort -u | head -40 || true
 
-if [ "$PLATFORM" = macos ]; then
-    BUILT_APP="$ROOT_DIR/.build/output/Release/$APP_NAME.app"
-    INSTALLED_APP="$HOME/Applications/$APP_NAME.app"
-    mkdir -p "$HOME/Applications"
-    rm -rf "$INSTALLED_APP"
-    cp -R "$BUILT_APP" "$INSTALLED_APP"
-    echo "Installed $INSTALLED_APP"
-else
-    echo "Built $APP_NAME ($PLATFORM), nothing to install"
-fi
+BIN_PATH=$(swift build -c release --show-bin-path)
+
+rm -rf "$APP_BUNDLE"
+mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
+cp "$BIN_PATH/$APP_NAME" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
+cp "$INFO_PLIST" "$APP_BUNDLE/Contents/Info.plist"
+for bundle in "$BIN_PATH"/*.bundle; do
+    [ -e "$bundle" ] && cp -R "$bundle" "$APP_BUNDLE/Contents/Resources/"
+done
+
+chmod +x "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
+codesign --force --sign - "$APP_BUNDLE"
+codesign --verify --deep --strict "$APP_BUNDLE"
+
+mkdir -p "$INSTALL_DIR"
+rm -rf "$INSTALLED_APP"
+cp -R "$APP_BUNDLE" "$INSTALLED_APP"
+
+echo "Packaged $APP_BUNDLE"
+echo "Installed $INSTALLED_APP"
