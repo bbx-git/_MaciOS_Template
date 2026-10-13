@@ -1,5 +1,17 @@
 .DS_Store
-.build
-.debug
-tmp
-temp
+
+# Build output
+.build/
+DerivedData/
+*.xcresult
+.debug/
+
+# Xcode and SwiftPM user state
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+
+# Scratch and large local media
+tmp/
+temp/
+Fixtures/local/

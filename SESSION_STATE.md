@@ -1,35 +1,23 @@
-# SESSION_STATE.md
+# Session State
 
-## Context Snapshot
-- **Project:** [Name]
-- **Current Architecture:** [Layered/Modular]
-- **Swift Version:** 6.4
-- **Next Immediate Step:** [The one thing to do next]
+_Overwritten at every wrap-up. Keep under 40 lines; git history has older versions._
 
-## Modules & Targets
-- **App:** [Target Name]
-- **Packages:** [Core/Domain/Features]
+## Status
+- Fresh from the template: no Xcode project or packages yet.
+- Last build: none.
 
-## Work Status
-- **Done:** - [x] Feature A
-- **In Progress:** - [ ] Feature B (Blocked by X)
-- **Recent Fixes (Anti-Regression):**
-  - [Fixed: Memory leak in ImageProcessor]
-  - [Fixed: Swift 6 concurrency warning in Network layer]
+## Next steps
+1. Ask the user for the app name, platforms and minimum OS versions; fill in `README.md`.
+2. User creates the Xcode project in Xcode (File › New › Project) and saves it as `App/<App>.xcodeproj`.
+3. Create `Packages/Core`, `Packages/Domain` and `Packages/Features` per `docs/ARCHITECTURE.md`; add them to the app target.
+4. Add `App/<App>.xcodeproj/xcshareddata/IDETemplateMacros.plist` with an empty `FILEHEADER`, so new files get no name or copyright header.
+5. Test, build, deploy, then overwrite this file.
 
-## Known Issues / Technical Debt
-- [List bugs here]
+## In progress
+- _none_
 
-## Decisions & Rationale
-- [Decision]: [Reason]
+## Recent fixes (last 3)
+- _none yet_
 
-## Build & Run Status
-- **Last Build:** [Success/Fail] (Release Mode)
-- **Deployment:** [App successfully moved to ~/Applications/]
-- **Test Assets:** [Verified in ~/Documents/Xcode/aTemp]
-
-## Recently Changed Files
-- [List files here]
-
-## Handoff for Next Context
-- [Direct instruction for when the agent wakes up after a /clear]
+## Known issues
+- _none yet_

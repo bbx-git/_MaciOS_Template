@@ -1,41 +1,17 @@
+# App Name
 
-
-# Project Name
-
-One-line description of what this app does.
-
-## Overview
-
-Short paragraph explaining the project, the main problem it solves, and who it is for.
+One-line description of what the app does and who it's for.
 
 ## Features
-
-- 
-- 
 - 
 
-## Installation / Setup
+## Requirements
+- macOS `<min>` / iOS `<min>` (set per app)
+- Latest stable Xcode and Swift
 
-PUT THEM HERE
+## Getting started
+Open `App/<App>.xcodeproj` and run the `<App>` scheme. Command-line build and deploy steps are in [CLAUDE.md](CLAUDE.md#build-test-deploy).
 
-## Usage
-
-Explain the basic usage flow.
-
-## Project structure
-
-```text
-Project/
-├── CLAUDE.md
-├── SESSION_STATE.md
-├── README.md
-├── Packages/
-├── App/
-└── Extensions/
-```
-
-## Roadmap / TODO
-
-- 
-- 
-- 
+## More
+- Project layout and module rules: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Current status and next steps: [SESSION_STATE.md](SESSION_STATE.md)

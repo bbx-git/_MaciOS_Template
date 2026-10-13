@@ -1,89 +1,52 @@
 # CLAUDE.md
 
-Act as a Senior iOS/Mac OS Engineer. Use **Swift 6.4** (or whatever is latest version) and the latest SwiftUI standards. Prioritize the **Observation framework**, **Swift Concurrency** (async/await), and **Swift Testing**. Avoid deprecated patterns like `@Published` or `XCTest` unless explicitly asked.
+Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xcode. Minimum OS versions are in `README.md`.
 
----
+## Session start
+1. Read `SESSION_STATE.md`, then run `git status -s && git log --oneline -5`.
+2. Before adding or moving code, read `docs/ARCHITECTURE.md` (layout, packages, dependency rules).
 
-## Project Defaults
-- Build with **Swift only**
-- Only Apple frameworks and pure Swift.
-- **No third-party dependencies** unless explicitly approved by the user.
-- Default macOS/iOS/Xcode/Swift requirements must be documented in `README.md`.
-- Always remove all copyrights/licenses if you are "translating" from other source code.
+## Everything stays in this repo
+- Plans: `docs/plans/<topic>.md`, never `~/.claude/plans`. Delete a plan once it's done (git keeps history).
+- Decisions between real alternatives (storage, architecture, a dependency): `docs/decisions/NNNN-short-title.md` with context, decision, consequences; 20 lines max.
+- Don't save Claude Code auto memories. Anything worth remembering goes in `SESSION_STATE.md` or `docs/`.
+- Scratch files, logs, downloads: `tmp/` (gitignored). Never `/tmp`, `~` or any other folder.
+- Sample media: `Fixtures/` (large files in `Fixtures/local/`, gitignored). Never look for media elsewhere on disk; if a file is missing, ask.
+- The only thing written outside the repo is the deployed app in `~/Applications/`.
 
----
+## Swift standards
+- Latest Swift language mode with strict concurrency: async/await and actors, explicit `Sendable`, UI types on `@MainActor`.
+- Observation (`@Observable`), not `ObservableObject`/`@Published`.
+- Swift Testing for unit tests; XCTest only for UI and performance tests.
+- `struct` by default; `final class` only when reference semantics are essential.
+- One file per responsibility; no god files.
+- Apple frameworks and pure Swift only. No third-party dependencies unless the user approves.
+- No copyright/license headers or author names (real or fake) in any file. Remove them from code you write, port or touch, including Xcode's "Created by…" header.
+- App runtime: check free disk space before large file writes; put temporary output in a unique subfolder of `FileManager.default.temporaryDirectory`.
 
-## Test Data & Assets
-- **Constraint:** Do not search for or assume the existence of test files in any other directory (e.g., Downloads, Desktop, or Pictures).
-- **Usage:** If the app or tests require sample media, always reference this path or ask the user to confirm a filename within this specific folder.
+## While working
+- Make the smallest clean change that fits the architecture.
+- After code changes: test, build and deploy (below). Docs-only changes need no build.
+- Update `README.md` or `docs/ARCHITECTURE.md` when reality changes.
+- Context nearly full: stop, overwrite `SESSION_STATE.md`, ask the user to `/clear`.
 
----
+## Build, test, deploy
+Build output lives in `.build/` (gitignored), never the default DerivedData. Logs go to `tmp/` and are overwritten each run; read past the summary only on failure.
 
-## Architecture Rules
-- **Package-First Modular Design:** The codebase must be strictly modularized using local Swift Packages. Organize packages into layers: `Core` (low-level), `Domain` (business logic), and `Features` (UI modules).
-- **Zero Target Copying:** Reusable logic/models must live in packages. App and extension targets must never share source files directly via target membership.
-- **The Scratchpad Exception:** New, experimental features or tiny helpers may live in the App target under `Sources/Scratchpad/`. 
-    - **The Promotion Rule:** Promote scratchpad code to a package as soon as it stabilizes or needs to be shared.
-- **Thin Targets:** App and extension targets must remain thin, acting only as orchestrators.
+```sh
+mkdir -p tmp
+# Unit tests (Debug), per package
+swift test -q --package-path Packages/<Package> > tmp/test.log 2>&1; echo "exit $?"; tail -20 tmp/test.log
+# Release build
+xcodebuild -project App/<App>.xcodeproj -scheme <App> -configuration Release -derivedDataPath .build/DerivedData -quiet > tmp/build.log 2>&1; echo "exit $?"; grep -E "error:|warning:" tmp/build.log | sort -u | head -40
+# Deploy (macOS apps)
+rm -rf ~/Applications/<App>.app && ditto .build/DerivedData/Build/Products/Release/<App>.app ~/Applications/<App>.app
+```
+- iOS schemes: add `-destination 'generic/platform=iOS Simulator'`; nothing to deploy. iOS-only packages: test with `xcodebuild test` and an iOS Simulator destination.
+- No `xcodebuild` (Linux/cloud session): skip build and deploy, and say so.
 
----
-
-## Build & Deployment Rules
-To avoid stale builds and DerivedData issues:
-- **Build Directory:** Use a local `.build` folder in the project root.
-- **Configuration:** Always build using the **Release** configuration.
-- **Build Command:** Use `xcodebuild` with `SYMROOT` and `DSTROOT` pointing to the local `.build` folder.
-    - `xcodebuild -scheme <Scheme> -configuration Release -derivedDataPath .build/DerivedData SYMROOT=.build/output`
-- **Deployment:** After a successful build, the `.app` bundle must be copied to `~/Applications/`.
-    - `cp -R .build/output/Release/<App>.app ~/Applications/`
-
----
-
-## Code Style
-- **Strict Isolation:** Adhere to Swift isolation; prefer `@MainActor` on UI-bound types and explicit `Sendable` conformance.
-- **Reference vs Value:** Prefer `struct` by default; use `final class` only when reference semantics are essential.
-- **File Discipline:** One file per meaningful responsibility; no "god" files.
-- **Resource Safety:** Check volume capacity before large file operations. Always use the standard test directory `~/Documents/Xcode/aTemp` for media processing tests.
-- **Temp Paths:** Use `FileManager.default.temporaryDirectory` with uniquely named subdirectories for session-specific outputs.
-
----
-
-## Workflow for Every Task
-1. **The Re-entry Protocol (Critical after /clear):** If your memory is blank, you **must** ground yourself before coding:
-    - **Check History:** Run `git log -n 1 -p` to see the code changes the user just committed from the previous session.
-    - **Check State:** Read `SESSION_STATE.md` to identify the architectural "why" and the next immediate step.
-2. Read `CLAUDE.md` and skim `README.md`.
-3. Make the smallest clean change that fits the architecture.
-4. **Build and Deploy** according to the "Build & Deployment Rules" above.
-5. Update docs if reality changed.
-6. **Compaction Warning:** When approaching context limits, STOP coding, update `SESSION_STATE.md` thoroughly, and wait for the user to `/clear`.
-
----
-
-## End-of-Session Ritual
-Before stopping work or letting the user run `/clear`, always:
-1. **Build and Deploy** to guarantee a functional app in `~/Applications/`.
-2. **Fix obvious errors** or report remaining failures.
-3. **Update SESSION_STATE.md**: Document what was accomplished, current status, and the **exact** next command or step.
-4. **Update README.md** if features or requirements changed.
-5. **Handoff Note:** Leave a final summary line for the user to see before they commit and clear.
-
----
-
-## SESSION_STATE.md Rules
-Keep it short and factual. It must contain:
-- Current architecture/modules.
-- What is implemented / What is in progress.
-- **Recent Fixes:** List the last 3 bug fixes to prevent regressions after a context clear.
-- Known bugs/limitations.
-- Immediate next steps.
-- Build/run status.
-
----
-
-## Review Checklist
-- Is logic modularized in a package (or in `Scratchpad`)?
-- Are targets thin?
-- Is it Swift (latest) compatible?
-- App built in **Release** mode and moved to `~/Applications/`?
-- `SESSION_STATE.md` contains the "next step" for the next session?
+## Wrap-up: when the user says "git commit push main" or ends the session
+1. If code changed since the last build: test, build, deploy. Fix obvious errors or report them.
+2. Overwrite `SESSION_STATE.md` (its format is in the file).
+3. Commit all changes with a descriptive message and push to `main`.
+4. Finish with a one-line summary.
