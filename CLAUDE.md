@@ -31,18 +31,18 @@ Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xco
 - Context nearly full: stop, overwrite `SESSION_STATE.md`, ask the user to `/clear`.
 
 ## Build, test, deploy
-Build output lives in `.build/` (gitignored), never the default DerivedData. Logs go to `tmp/` and are overwritten each run; read past the summary only on failure.
+Always Release, tests included. Build output lives in `.build/` (gitignored), never the default DerivedData. Logs go to `tmp/` and are overwritten each run; read past the summary only on failure.
 
 ```sh
 mkdir -p tmp
-# Unit tests (Debug), per package
-swift test -q --package-path Packages/<Package> > tmp/test.log 2>&1; echo "exit $?"; tail -20 tmp/test.log
-# Release build
-xcodebuild -project App/<App>.xcodeproj -scheme <App> -configuration Release -derivedDataPath .build/DerivedData -quiet > tmp/build.log 2>&1; echo "exit $?"; grep -E "error:|warning:" tmp/build.log | sort -u | head -40
-# Deploy (macOS apps)
-rm -rf ~/Applications/<App>.app && ditto .build/DerivedData/Build/Products/Release/<App>.app ~/Applications/<App>.app
+# Unit tests, per package (-enable-testing keeps @testable import working in Release)
+swift test -q -c release -Xswiftc -enable-testing --package-path Packages/<Package> > tmp/test.log 2>&1; echo "exit $?"; tail -20 tmp/test.log
+# Build
+xcodebuild -project App/<App>.xcodeproj -scheme <App> -configuration Release -derivedDataPath .build/DerivedData SYMROOT="$PWD/.build/output" -quiet > tmp/build.log 2>&1; echo "exit $?"; grep -E "error:|warning:" tmp/build.log | sort -u | head -40
+# Deploy (macOS apps), then double-click to test
+rm -rf ~/Applications/<App>.app && cp -R .build/output/Release/<App>.app ~/Applications/
 ```
-- iOS schemes: add `-destination 'generic/platform=iOS Simulator'`; nothing to deploy. iOS-only packages: test with `xcodebuild test` and an iOS Simulator destination.
+- iOS schemes: add `-destination 'generic/platform=iOS Simulator'`; nothing to deploy. iOS-only packages: `xcodebuild test -configuration Release ENABLE_TESTABILITY=YES` with an iOS Simulator destination.
 - No `xcodebuild` (Linux/cloud session): skip build and deploy, and say so.
 
 ## Wrap-up: when the user says "git commit push main" or ends the session
