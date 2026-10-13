@@ -42,12 +42,12 @@ Always Release, tests included. Build output lives in `.build/` (gitignored), ne
 mkdir -p tmp
 # Unit tests, per package (-enable-testing keeps @testable import working in Release)
 swift test -q -c release -Xswiftc -enable-testing --package-path Packages/<Package> > tmp/test.log 2>&1; echo "exit $?"; tail -20 tmp/test.log
-# Build
-xcodebuild -project App/<App>.xcodeproj -scheme <App> -configuration Release -derivedDataPath .build/DerivedData SYMROOT="$PWD/.build/output" -quiet > tmp/build.log 2>&1; echo "exit $?"; grep -E "error:|warning:" tmp/build.log | sort -u | head -40
-# Deploy (macOS apps), then double-click to test
-rm -rf ~/Applications/<App>.app && cp -R .build/output/Release/<App>.app ~/Applications/
+# Build, plus deploy to ~/Applications on macOS, then double-click to test
+Scripts/build.sh          # macOS (default)
+Scripts/build.sh ios      # iOS Simulator build, nothing to deploy
 ```
-- iOS schemes: add `-destination 'generic/platform=iOS Simulator'`; nothing to deploy. iOS-only packages: `xcodebuild test -configuration Release ENABLE_TESTABILITY=YES` with an iOS Simulator destination.
+- `Scripts/build.sh` is app-agnostic: it takes the app name from the single `App/*.xcodeproj` (scheme defaults to the same name; override with `SCHEME=...`). Errors are printed; the full log is `tmp/build.log`. Keep it generic; never hardcode an app name in it.
+- iOS-only packages: `xcodebuild test -configuration Release ENABLE_TESTABILITY=YES` with an iOS Simulator destination.
 - No `xcodebuild` (Linux/cloud session): skip build and deploy, and say so.
 
 ## Wrap-up: when the user says "git commit push main" or ends the session

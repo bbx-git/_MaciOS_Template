@@ -13,6 +13,7 @@
 │   ├── Domain/             models and business logic
 │   └── Features/           SwiftUI feature modules + DesignSystem
 ├── Fixtures/               sample media for tests (local/ is gitignored)
+├── Scripts/                build.sh: app-agnostic Release build + deploy
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── WORKFLOW.md         the user's guide (Claude skips it)
