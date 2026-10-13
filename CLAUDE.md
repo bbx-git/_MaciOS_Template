@@ -23,7 +23,7 @@ Act as a senior macOS engineer. Use the latest stable Swift and SwiftUI. The app
 - `struct` by default; `final class` only when reference semantics are essential.
 - One file per responsibility; no god files.
 - Apple frameworks and pure Swift only. No third-party dependencies unless the user approves.
-- No copyright/license headers or author names (real or fake) in any file. Remove them from code you write, port or touch, including Xcode's "Created by…" header.
+- No copyright/license headers or author names (real or fake) in any file. Remove them from code you write, port or touch.
 - App runtime: check free disk space before large file writes; put temporary output in a unique subfolder of `FileManager.default.temporaryDirectory`.
 
 ## While working

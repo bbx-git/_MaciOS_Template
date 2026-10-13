@@ -4,12 +4,8 @@ Your guide to using this template with Claude Code. Claude doesn't read this fil
 
 ## Starting a new app
 1. One time: on GitHub, open this template's **Settings → General** and tick **Template repository**. Then **Use this template → Create a new repository** gives each new app a fresh repo with these files and no history.
-2. Clone the new repo to your Mac, start Claude Code in that folder and say "let's start". `SESSION_STATE.md` loads automatically; Claude asks for the app name, platforms and minimum OS versions.
-3. When Claude asks for the Xcode project:
-   - Xcode: **File → New → Project** (**Multiplatform → App** for Mac + iPhone). Save it into the repo folder.
-   - Untick **Create Git repository** (the repo already exists).
-   - Xcode creates a folder named after the app. Quit Xcode and rename that folder to `App`.
-   - Claude does the rest: packages, wiring, removing the "Created by…" headers.
+2. Clone the new repo to your Mac, start Claude Code in that folder and say "let's start". `SESSION_STATE.md` loads automatically; Claude asks for the app name and minimum macOS version.
+3. Claude creates everything else: `Package.swift`, `App/Resources/Info.plist`, the packages and the first build. There is no Xcode project; you never open Xcode.
 
 ## Daily loop
 | You say | What happens |
@@ -18,7 +14,7 @@ Your guide to using this template with Claude Code. Claude doesn't read this fil
 | "write a plan for X" | Claude writes `docs/plans/x.md`, shows it and stops |
 | "go" / "do step 2" | Claude works through the plan, ticking steps as they land |
 | You correct something | Claude adds a one-line lesson so it doesn't repeat |
-| "git commit push main" | Test, build, copy to `~/Applications`, update state, commit, push |
+| "git commit push main" | Test, run `Scripts/build.sh` (installs to `~/Applications`), update state, commit, push |
 | `/clear` | Fresh session; state loads again |
 
 ## Plans
@@ -29,8 +25,9 @@ Your guide to using this template with Claude Code. Claude doesn't read this fil
 
 ## Tips
 - One feature per session: "git commit push main", `/clear`, next feature. A fresh short session beats a long one in cost and accuracy.
-- App work happens in Claude Code on your Mac (terminal or desktop app). Web sessions run on Linux without Xcode, so they can't build or deploy; they're fine for docs and planning.
+- App work happens in Claude Code on your Mac (terminal or desktop app). Web sessions run on Linux without the macOS toolchain, so they can't build or deploy; they're fine for docs and planning.
 - Say how you'll check the result ("dropping a video into the window shows a thumbnail"). It becomes the plan's "Done when" or a test.
+- `Scripts/build.sh` is app-agnostic (the name comes from `App/Resources/Info.plist`); don't edit it per app. The template is macOS only; iOS apps need an Xcode project and a different build.
 - Put sample media in `Fixtures/` before asking for media features.
 - If Lessons in `CLAUDE.md` passes ~15 lines, ask Claude to merge similar ones.
 - Improved `CLAUDE.md` inside an app? Copy the change back to the template; apps made from it don't get later updates.
