@@ -3,11 +3,12 @@
 Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xcode. Minimum OS versions are in `README.md`.
 
 ## Session start
-1. Read `SESSION_STATE.md`, then run `git status -s && git log --oneline -5`.
-2. Before adding or moving code, read `docs/ARCHITECTURE.md` (layout, packages, dependency rules).
+1. Current state (loaded automatically): @SESSION_STATE.md
+2. Run `git status -s && git log --oneline -5`. Treat the state as claims, not facts: before the first code change, run the tests so you know which failures were already there.
+3. Before adding or moving code, read `docs/ARCHITECTURE.md` (layout, packages, dependency rules).
 
 ## Everything stays in this repo
-- Plans: `docs/plans/<topic>.md`, never `~/.claude/plans`. Delete a plan once it's done (git keeps history).
+- Plans: `docs/plans/<topic>.md`, never `~/.claude/plans`. Sections: **Goal** (2–3 sentences, what the user gets), **Steps** (checkboxes, one commit each), **Done when** (which tests exist, what to check by hand). Show the user the plan before writing code. Tick steps as they land; when scope changes, add a dated line saying why. When done, move any lasting "why" to `docs/decisions/`, then delete the plan.
 - Decisions between real alternatives (storage, architecture, a dependency): `docs/decisions/NNNN-short-title.md` with context, decision, consequences; 20 lines max.
 - Don't save Claude Code auto memories. Anything worth remembering goes in `SESSION_STATE.md` or `docs/`.
 - Scratch files, logs, downloads: `tmp/` (gitignored). Never `/tmp`, `~` or any other folder.
@@ -17,7 +18,7 @@ Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xco
 ## Swift standards
 - Latest Swift language mode with strict concurrency: async/await and actors, explicit `Sendable`, UI types on `@MainActor`.
 - Observation (`@Observable`), not `ObservableObject`/`@Published`.
-- Swift Testing for unit tests; XCTest only for UI and performance tests.
+- Swift Testing for unit tests; XCTest only for UI and performance tests. Every bug fix gets a regression test.
 - `struct` by default; `final class` only when reference semantics are essential.
 - One file per responsibility; no god files.
 - Apple frameworks and pure Swift only. No third-party dependencies unless the user approves.
@@ -28,6 +29,7 @@ Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xco
 - Make the smallest clean change that fits the architecture.
 - After code changes: test, build and deploy (below). Docs-only changes need no build.
 - Update `README.md` or `docs/ARCHITECTURE.md` when reality changes.
+- When the user corrects something that will come up again, add one line under Lessons.
 - Context nearly full: stop, overwrite `SESSION_STATE.md`, ask the user to `/clear`.
 
 ## Build, test, deploy
@@ -50,3 +52,6 @@ rm -rf ~/Applications/<App>.app && cp -R .build/output/Release/<App>.app ~/Appli
 2. Overwrite `SESSION_STATE.md` (its format is in the file).
 3. Commit all changes with a descriptive message and push to `main`.
 4. Finish with a one-line summary.
+
+## Lessons
+- _none yet_
