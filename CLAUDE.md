@@ -18,7 +18,7 @@ Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xco
 ## Swift standards
 - Latest Swift language mode with strict concurrency: async/await and actors, explicit `Sendable`, UI types on `@MainActor`.
 - Observation (`@Observable`), not `ObservableObject`/`@Published`.
-- Swift Testing for unit tests; XCTest only for UI and performance tests. Every bug fix gets a regression test.
+- Swift Testing for unit tests; XCTest only for UI and performance tests. Every bug fix starts with a failing regression test.
 - `struct` by default; `final class` only when reference semantics are essential.
 - One file per responsibility; no god files.
 - Apple frameworks and pure Swift only. No third-party dependencies unless the user approves.
@@ -26,7 +26,9 @@ Act as a senior iOS/macOS engineer. Use the latest stable Swift, SwiftUI and Xco
 - App runtime: check free disk space before large file writes; put temporary output in a unique subfolder of `FileManager.default.temporaryDirectory`.
 
 ## While working
-- Make the smallest clean change that fits the architecture.
+- Ambiguous requirement or a hard-to-undo choice: ask first. Otherwise state your assumptions in one line and go.
+- Make the smallest clean change that fits the architecture: no speculative abstractions, options or error handling for cases that can't happen.
+- Touch only what the task needs: no drive-by refactors or reformatting. Match the surrounding style; remove anything your change left unused.
 - After code changes: test, build and deploy (below). Docs-only changes need no build.
 - Update `README.md` or `docs/ARCHITECTURE.md` when reality changes.
 - When the user corrects something that will come up again, add one line under Lessons.
